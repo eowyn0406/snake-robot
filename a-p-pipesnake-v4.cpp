@@ -1,20 +1,20 @@
 //----- date: 2018-5-9
 //----- version: v4
-//----- notes: ĞŞ¸Ä¹Ø½Ú¼ä¾àÊ¹Ö®ÓëÊµ¼ÊÇé¿ö¸ü·ûºÏ
-//----- jointtype of the snake£º
+//----- notes: ä¿®æ”¹å…³èŠ‚é—´è·ä½¿ä¹‹ä¸å®é™…æƒ…å†µæ›´ç¬¦åˆ
+//----- jointtype of the snakeï¼š
 //----- head-yaw-body0-pitch-body1-yaw-body2-pitch...-pitch-body7-yaw-tail
-//------- Í·-Æ«º½-ÉíÌå0-¸©Ñö-ÉíÌå1-Æ«º½-ÉíÌå2-¸©Ñö-...-¸©Ñö-ÉíÌå7-Æ«º½-Î²
+//------- å¤´-åèˆª-èº«ä½“0-ä¿¯ä»°-èº«ä½“1-åèˆª-èº«ä½“2-ä¿¯ä»°-...-ä¿¯ä»°-èº«ä½“7-åèˆª-å°¾
 //===========================================================//
 
 
-#include <ode/ode.h>  //°üº¬¶¯Á¦Ñ§·ÂÕæµÄÍ·ÎÄ¼ş
-#include <drawstuff/drawstuff.h>  //°üº¬»æÍ¼º¯ÊıµÄÍ·ÎÄ¼ş
+#include <ode/ode.h>  //åŒ…å«åŠ¨åŠ›å­¦ä»¿çœŸçš„å¤´æ–‡ä»¶
+#include <drawstuff/drawstuff.h>  //åŒ…å«ç»˜å›¾å‡½æ•°çš„å¤´æ–‡ä»¶
 #include <math.h>
 #include <conio.h>
 #include "vars1.h"
 #ifdef _MSC_VER
 #pragma warning(disable:4244 4305)
-#endif      //½ûÖ¹vc++¾¯¸æ
+#endif      //ç¦æ­¢vc++è­¦å‘Š
 
 #include<iostream>
 #include<fstream>
@@ -26,9 +26,9 @@ using namespace std;
 #define dsDrawCylinder dsDrawCylinderD
 #define dsDrawCapsule  dsDrawCapsuleD
 #define dsDrawLine     dsDrawLineD
-#endif  //Èç¹û¶¨ÒåÁËdDOUBLEĞÍ¾ÍÓÃË«¾«¶È»æÍ¼º¯Êı
+#endif  //å¦‚æœå®šä¹‰äº†dDOUBLEå‹å°±ç”¨åŒç²¾åº¦ç»˜å›¾å‡½æ•°
 
-//ÉùÃ÷Ò»¸ö°üº¬bodyºÍgeomµÄÀà
+//å£°æ˜ä¸€ä¸ªåŒ…å«bodyå’Œgeomçš„ç±»
 //typedef struct
 class MyObjects
 {
@@ -37,51 +37,51 @@ class MyObjects
 	dGeomID geom;
 };
 
-//Éú³ÉÉßĞÎ»úÆ÷ÈË
-MyObjects SnakeBody[NumOfModule];	//Éú³ÉN¸öÄ£¿é
-MyObjects SnakeHead;	//Éú³ÉÉßÍ·Ä£¿é
-MyObjects SnakeTail;	//Éú³ÉÉßÎ²Ä£¿é
-MyObjects HeadWheelR[NumOfHeadWheels];	//Éú³ÉÍ·²¿Ö÷¶¯ÂÖÓÒ
-MyObjects HeadWheelL[NumOfHeadWheels];	//Éú³ÉÍ·²¿Ö÷¶¯ÂÖ×ó
-MyObjects TailWheelR[NumOfHeadWheels];	//Éú³ÉÎ²²¿Ö÷¶¯ÂÖÓÒ
-MyObjects TailWheelL[NumOfHeadWheels];	//Éú³ÉÎ²²¿Ö÷¶¯ÂÖ×ó
+//ç”Ÿæˆè›‡å½¢æœºå™¨äºº
+MyObjects SnakeBody[NumOfModule];	//ç”ŸæˆNä¸ªæ¨¡å—
+MyObjects SnakeHead;	//ç”Ÿæˆè›‡å¤´æ¨¡å—
+MyObjects SnakeTail;	//ç”Ÿæˆè›‡å°¾æ¨¡å—
+MyObjects HeadWheelR[NumOfHeadWheels];	//ç”Ÿæˆå¤´éƒ¨ä¸»åŠ¨è½®å³
+MyObjects HeadWheelL[NumOfHeadWheels];	//ç”Ÿæˆå¤´éƒ¨ä¸»åŠ¨è½®å·¦
+MyObjects TailWheelR[NumOfHeadWheels];	//ç”Ÿæˆå°¾éƒ¨ä¸»åŠ¨è½®å³
+MyObjects TailWheelL[NumOfHeadWheels];	//ç”Ÿæˆå°¾éƒ¨ä¸»åŠ¨è½®å·¦
 
-//MyObjects RightWheel[NumOfWheelPair];		//Éú³ÉN¸öÓÒ±ßµÄÂÖ×Ó
-//MyObjects LeftWheel[NumOfWheelPair];		//Éú³ÉN¸ö×ó±ßµÄÂÖ×Ó
+//MyObjects RightWheel[NumOfWheelPair];		//ç”ŸæˆNä¸ªå³è¾¹çš„è½®å­
+//MyObjects LeftWheel[NumOfWheelPair];		//ç”ŸæˆNä¸ªå·¦è¾¹çš„è½®å­
 
-//Éú³É¹µÇş»·¾³
-//MyObjects LeftWall;	//Éú³ÉÁ½±ß¹µÇş
-//MyObjects RightWall;	//Éú³ÉÁ½±ß¹µÇş
+//ç”Ÿæˆæ²Ÿæ¸ ç¯å¢ƒ
+//MyObjects LeftWall;	//ç”Ÿæˆä¸¤è¾¹æ²Ÿæ¸ 
+//MyObjects RightWall;	//ç”Ÿæˆä¸¤è¾¹æ²Ÿæ¸ 
 
-static dWorldID world;	//¶¨Òå±äÁ¿world£¬ÀàĞÍÎªdWorldID
-static dSpaceID space;	//¶¨Òå±äÁ¿space£¬ÀàĞÍÎªdSpaceID
-static dGeomID  ground;	//¶¨Òå±äÁ¿groud£¬ÀàĞÍÎªdGeomID
-static dJointID BodyJoint[NumOfHinge];	//ÓÃÀ´Á¬½Ó¸÷¸öÄ£¿éµÄ¹Ø½Ú
-static dJointID headJoint;	//Á¬½ÓÍ·²¿ºÍÉíÌåµÄÆ«º½¹Ø½Ú
-static dJointID tailJoint;	//Á¬½ÓÉíÌåºÍÎ²²¿µÄÆ«º½¹Ø½Ú
+static dWorldID world;	//å®šä¹‰å˜é‡worldï¼Œç±»å‹ä¸ºdWorldID
+static dSpaceID space;	//å®šä¹‰å˜é‡spaceï¼Œç±»å‹ä¸ºdSpaceID
+static dGeomID  ground;	//å®šä¹‰å˜é‡groudï¼Œç±»å‹ä¸ºdGeomID
+static dJointID BodyJoint[NumOfHinge];	//ç”¨æ¥è¿æ¥å„ä¸ªæ¨¡å—çš„å…³èŠ‚
+static dJointID headJoint;	//è¿æ¥å¤´éƒ¨å’Œèº«ä½“çš„åèˆªå…³èŠ‚
+static dJointID tailJoint;	//è¿æ¥èº«ä½“å’Œå°¾éƒ¨çš„åèˆªå…³èŠ‚
 static dJointID HeadWheelLeftJoint[NumOfHeadWheels];
 static dJointID HeadWheelRightJoint[NumOfHeadWheels];
 static dJointID TailWheelLeftJoint[NumOfHeadWheels];
 static dJointID TailWheelRightJoint[NumOfHeadWheels];
 
-//static dJointID RotateJoint_RightWheel[NumOfWheelPair];	//ÓÃÀ´Á¬½ÓÓÒ±ßÂÖ×ÓºÍÄ£¿éµÄ¹Ø½Ú
-//static dJointID RotateJoint_LeftWheel[NumOfWheelPair];	//ÓÃÀ´Á¬½ÓÓÒ±ßÂÖ×ÓºÍÄ£¿éµÄ¹Ø½Ú
+//static dJointID RotateJoint_RightWheel[NumOfWheelPair];	//ç”¨æ¥è¿æ¥å³è¾¹è½®å­å’Œæ¨¡å—çš„å…³èŠ‚
+//static dJointID RotateJoint_LeftWheel[NumOfWheelPair];	//ç”¨æ¥è¿æ¥å³è¾¹è½®å­å’Œæ¨¡å—çš„å…³èŠ‚
 
-static dJointGroupID contactgroup;	//¶¨Òå¹Ø½Ú×écontactgroup£¬ÓÃÀ´´æ·ÅÅö×²¼ì²âÖĞĞèÒªµÄÌØÊâ¹Ø½Ú
+static dJointGroupID contactgroup;	//å®šä¹‰å…³èŠ‚ç»„contactgroupï¼Œç”¨æ¥å­˜æ”¾ç¢°æ’æ£€æµ‹ä¸­éœ€è¦çš„ç‰¹æ®Šå…³èŠ‚
 static int flag = 0;
-dsFunctions fn;			//ÓÃÓÚÅö×²¼ì²â
+dsFunctions fn;			//ç”¨äºç¢°æ’æ£€æµ‹
 
 
-//×Óº¯ÊıÉùÃ÷
-static void nearCallback(void *data, dGeomID o1, dGeomID o2);	//Åö×²¼ì²â
-static void start();			//ÊÓµãÉèÖÃ
-static void simLoop(int pause);	//Ñ­»·
-void prepDrawStuff();			//Ô¤´¦Àí
-void jointConnect();			//¹Ø½ÚÁ¬½Ó
-void bodyPositionSet();				//¸ÕÌå²ÎÊıÉèÖÃ
+//å­å‡½æ•°å£°æ˜
+static void nearCallback(void *data, dGeomID o1, dGeomID o2);	//ç¢°æ’æ£€æµ‹
+static void start();			//è§†ç‚¹è®¾ç½®
+static void simLoop(int pause);	//å¾ªç¯
+void prepDrawStuff();			//é¢„å¤„ç†
+void jointConnect();			//å…³èŠ‚è¿æ¥
+void bodyPositionSet();				//åˆšä½“å‚æ•°è®¾ç½®
 void controller(int steps, int ch);
 void controller(int steps);
-void bodyCreator();	//ÔÚworldºÍspaceÖĞÉú³É¸÷¸ö²¿·Ö
+void bodyCreator();	//åœ¨worldå’Œspaceä¸­ç”Ÿæˆå„ä¸ªéƒ¨åˆ†
 void headTailCreator();
 void environmentSet();
 
@@ -96,10 +96,10 @@ void headTailCreator()
 	dGeomSetBody(SnakeTail.geom,SnakeTail.body);
 			
 	dMass m;
-	dMassSetZero (&m);			//ÉèÖÃÖÊÁ¿ÎªÁã
+	dMassSetZero (&m);			//è®¾ç½®è´¨é‡ä¸ºé›¶
 	dMatrix3 Sp;
 
-	dRFrom2Axes(Sp,1,0,0,0,1,0);	//·Ö±ğÒÔÊÀ½ç×ø±êÏµµÄX,YÖá×÷ÎªÄ£¿é±¾ÌåµÄX,YÖá
+	dRFrom2Axes(Sp,1,0,0,0,1,0);	//åˆ†åˆ«ä»¥ä¸–ç•Œåæ ‡ç³»çš„X,Yè½´ä½œä¸ºæ¨¡å—æœ¬ä½“çš„X,Yè½´
 	dMassSetBox(&m,DensityOfModule,ModuleWidth,ModuleWidth,ModuleHeight);
 
 	dBodySetMass (SnakeHead.body,&m);
@@ -112,7 +112,7 @@ void headTailCreator()
 	dBodySetPosition(SnakeTail.body,CenTail[0],CenTail[1],CenTail[2]);
 	dBodySetRotation(SnakeTail.body,Sp);
 
-	//Éú³É²à±ßÅÅÂÖ
+	//ç”Ÿæˆä¾§è¾¹æ’è½®
 	for(int i=0; i<NumOfHeadWheels; i++)
 	{
 		HeadWheelR[i].body = dBodyCreate(world);
@@ -136,33 +136,33 @@ void headTailCreator()
 		dBodySetPosition(HeadWheelL[i].body,CenHead[0],deltaY+ModuleWidth/2+WheelLength/2, ModuleHeightCen-ModuleHeight/2+WheelRadius*7/8);
 
 		//dBodySetPosition(HeadWheelL[i].body,sqrt(2)*ModuleWidth/2+7*ModuleLength/4-0.25*i*ModuleLength,deltaY+ModuleWidth/2+WheelLength/2, ModuleHeightCen-ModuleHeight/2+WheelRadius*7/8);
-		dRFrom2Axes(Sp,0,0,1,1,0,0);	//·Ö±ğÒÔÊÀ½ç×ø±êÏµµÄZ,XÖá×÷ÎªÂÖ×Ó±¾ÌåµÄX,YÖá
+		dRFrom2Axes(Sp,0,0,1,1,0,0);	//åˆ†åˆ«ä»¥ä¸–ç•Œåæ ‡ç³»çš„Z,Xè½´ä½œä¸ºè½®å­æœ¬ä½“çš„X,Yè½´
 		dBodySetRotation(HeadWheelL[i].body,Sp);
 
 		dBodySetMass (HeadWheelR[i].body,&m);
 		dBodySetPosition(HeadWheelR[i].body,CenHead[0],deltaY-ModuleWidth/2-WheelLength/2, ModuleHeightCen-ModuleHeight/2+WheelRadius*7/8);
 		
 		//dBodySetPosition(HeadWheelR[i].body,sqrt(2)*ModuleWidth/2+7*ModuleLength/4-0.25*i*ModuleLength,deltaY-ModuleWidth/2-WheelLength/2, ModuleHeightCen-ModuleHeight/2+WheelRadius*7/8);
-		dRFrom2Axes(Sp,0,0,1,1,0,0);	//·Ö±ğÒÔÊÀ½ç×ø±êÏµµÄZ,XÖá×÷ÎªÂÖ×Ó±¾ÌåµÄX,YÖá
+		dRFrom2Axes(Sp,0,0,1,1,0,0);	//åˆ†åˆ«ä»¥ä¸–ç•Œåæ ‡ç³»çš„Z,Xè½´ä½œä¸ºè½®å­æœ¬ä½“çš„X,Yè½´
 		dBodySetRotation(HeadWheelR[i].body,Sp);
 
 		dBodySetMass (TailWheelL[i].body,&m);
 		dBodySetPosition(TailWheelL[i].body,CenTail[0],deltaY+ModuleWidth/2+WheelLength/2, ModuleHeightCen-ModuleHeight/2+WheelRadius*7/8);
 
 		//dBodySetPosition(TailWheelL[i].body,-2*NumOfModule*BodyLength-sqrt(2)*ModuleWidth/2+3*ModuleLength/4-0.25*i*ModuleLength,deltaY+ModuleWidth/2+WheelLength/2, ModuleHeightCen-ModuleHeight/2+WheelRadius*7/8);
-		dRFrom2Axes(Sp,0,0,1,1,0,0);	//·Ö±ğÒÔÊÀ½ç×ø±êÏµµÄZ,XÖá×÷ÎªÂÖ×Ó±¾ÌåµÄX,YÖá
+		dRFrom2Axes(Sp,0,0,1,1,0,0);	//åˆ†åˆ«ä»¥ä¸–ç•Œåæ ‡ç³»çš„Z,Xè½´ä½œä¸ºè½®å­æœ¬ä½“çš„X,Yè½´
 		dBodySetRotation(TailWheelL[i].body,Sp);
 
 		dBodySetMass (TailWheelR[i].body,&m);
 		dBodySetPosition(TailWheelR[i].body,CenTail[0],deltaY-ModuleWidth/2-WheelLength/2, ModuleHeightCen-ModuleHeight/2+WheelRadius*7/8);
 		
 		//dBodySetPosition(TailWheelR[i].body,-2*NumOfModule*BodyLength-sqrt(2)*ModuleWidth/2+3*ModuleLength/4-0.25*i*ModuleLength,deltaY-ModuleWidth/2-WheelLength/2, ModuleHeightCen-ModuleHeight/2+WheelRadius*7/8);
-		dRFrom2Axes(Sp,0,0,1,1,0,0);	//·Ö±ğÒÔÊÀ½ç×ø±êÏµµÄZ,XÖá×÷ÎªÂÖ×Ó±¾ÌåµÄX,YÖá
+		dRFrom2Axes(Sp,0,0,1,1,0,0);	//åˆ†åˆ«ä»¥ä¸–ç•Œåæ ‡ç³»çš„Z,Xè½´ä½œä¸ºè½®å­æœ¬ä½“çš„X,Yè½´
 		dBodySetRotation(TailWheelR[i].body,Sp);
 
 	}
 
-	//Ìí¼ÓÍ·Î²Ö÷¶¯ÂÖ¹Ø½Ú
+	//æ·»åŠ å¤´å°¾ä¸»åŠ¨è½®å…³èŠ‚
 	dReal deltay = 0.001;
 	for(int i=0; i<NumOfHeadWheels; i++)
 	{
@@ -192,27 +192,27 @@ void bodyCreator()
 {
 	for(int i=0;i<NumOfModule;i++)
 	{
-		SnakeBody[i].body = dBodyCreate (world);		//Éú³É¸÷¸öÄ£¿é
+		SnakeBody[i].body = dBodyCreate (world);		//ç”Ÿæˆå„ä¸ªæ¨¡å—
 		if(i%2==0)
-			SnakeBody[i].geom = dCreateBox(space,BodyX,BodyY,BodyZ);//Éú³É¼¸ºÎĞÎ×´
+			SnakeBody[i].geom = dCreateBox(space,BodyX,BodyY,BodyZ);//ç”Ÿæˆå‡ ä½•å½¢çŠ¶
 		else
-			SnakeBody[i].geom = dCreateBox(space,BodyY,BodyX,BodyZ);//Éú³É¼¸ºÎĞÎ×´
-		dGeomSetBody(SnakeBody[i].geom,SnakeBody[i].body);//Ìí¼Ó¹ØÁªgeomºÍbody
+			SnakeBody[i].geom = dCreateBox(space,BodyY,BodyX,BodyZ);//ç”Ÿæˆå‡ ä½•å½¢çŠ¶
+		dGeomSetBody(SnakeBody[i].geom,SnakeBody[i].body);//æ·»åŠ å…³è”geomå’Œbody
 	}
 
 	bodyPositionSet();
 }
 
-//Î»×ËÉèÖÃº¯Êı,°üÀ¨ÖÊÁ¿£¬¼¸ºÎĞÎ×´µÈµÄÉèÖÃ
+//ä½å§¿è®¾ç½®å‡½æ•°,åŒ…æ‹¬è´¨é‡ï¼Œå‡ ä½•å½¢çŠ¶ç­‰çš„è®¾ç½®
 
 void bodyPositionSet()
 {
-	dMatrix3 Sp_SnakeBody[NumOfModule];	//Ã¿¸öÄ£¿éµÄÎ»×Ë¾ØÕó
+	dMatrix3 Sp_SnakeBody[NumOfModule];	//æ¯ä¸ªæ¨¡å—çš„ä½å§¿çŸ©é˜µ
 	dMass m;
-	dMassSetZero (&m);			//ÉèÖÃÖÊÁ¿ÎªÁã
+	dMassSetZero (&m);			//è®¾ç½®è´¨é‡ä¸ºé›¶
 	for(int i=0;i<NumOfModule;i++)
 	{
-		dRFrom2Axes(Sp_SnakeBody[i],1,0,0,0,1,0);	//·Ö±ğÒÔÊÀ½ç×ø±êÏµµÄX,YÖá×÷ÎªÄ£¿é±¾ÌåµÄX,YÖá
+		dRFrom2Axes(Sp_SnakeBody[i],1,0,0,0,1,0);	//åˆ†åˆ«ä»¥ä¸–ç•Œåæ ‡ç³»çš„X,Yè½´ä½œä¸ºæ¨¡å—æœ¬ä½“çš„X,Yè½´
 		if(i%2==0)
 			dMassSetBox(&m,DensityOfBody,BodyX,BodyY,BodyZ);
 		else
@@ -225,7 +225,7 @@ void bodyPositionSet()
 
 void environmentSet()
 {
-		//Éú³ÉÁ½ÃæÇ½Ìå
+		//ç”Ÿæˆä¸¤é¢å¢™ä½“
 	/*LeftWall.body = dBodyCreate(world);
 	LeftWall.geom = dCreateBox(space, WallLength, WallWidth, WallHeight);
 	dGeomSetBody(LeftWall.geom, LeftWall.body);
@@ -233,7 +233,7 @@ void environmentSet()
 	RightWall.geom = dCreateBox(space, WallLength, WallWidth, WallHeight);
 	dGeomSetBody(RightWall.geom, RightWall.body);*/
 
-	/*dRFrom2Axes(Wall, 1, 0, 0, 0, 1, 0);  //·Ö±ğÒÔÊÀ½ç×ø±êÏµµÄX,YÖá×÷ÎªÇ½ÌåµÄX,YÖá
+	/*dRFrom2Axes(Wall, 1, 0, 0, 0, 1, 0);  //åˆ†åˆ«ä»¥ä¸–ç•Œåæ ‡ç³»çš„X,Yè½´ä½œä¸ºå¢™ä½“çš„X,Yè½´
 	dMassSetBox(&m, DensityOfWall, WallLength, WallWidth, WallHeight);
 	dBodySetMass(LeftWall.body, &m);
 	dBodySetPosition(LeftWall.body, WallLength/2, -(WallWidth/2 + ModuleLength) + deltaY, WallHeight / 2);
@@ -244,34 +244,34 @@ void environmentSet()
 }
 
 
-//¹Ø½ÚÁ¬½Óº¯Êı
+//å…³èŠ‚è¿æ¥å‡½æ•°
 void jointConnect()
 {
-	//Á¬½Ó±»¶¯Ä£¿éµÄ¹Ø½Ú£º8¸öÄ£¿é¡¢7¸ö¹Ø½Ú¡£
-	//Í·-Æ«º½-ÉíÌå0-¸©Ñö-ÉíÌå1-Æ«º½-ÉíÌå2-¸©Ñö-...-¸©Ñö-ÉíÌå7-Æ«º½-Î²
+	//è¿æ¥è¢«åŠ¨æ¨¡å—çš„å…³èŠ‚ï¼š8ä¸ªæ¨¡å—ã€7ä¸ªå…³èŠ‚ã€‚
+	//å¤´-åèˆª-èº«ä½“0-ä¿¯ä»°-èº«ä½“1-åèˆª-èº«ä½“2-ä¿¯ä»°-...-ä¿¯ä»°-èº«ä½“7-åèˆª-å°¾
 	for(int i=0;i<NumOfHinge;i++)
 	{
 		BodyJoint[i] = dJointCreateHinge(world,0);
-		dJointAttach(BodyJoint[i],SnakeBody[i].body,SnakeBody[i+1].body);	//	Á¬½ÓµÚi¸öÄ£¿éºÍµÚi+1¸öÄ£¿é
+		dJointAttach(BodyJoint[i],SnakeBody[i].body,SnakeBody[i+1].body);	//	è¿æ¥ç¬¬iä¸ªæ¨¡å—å’Œç¬¬i+1ä¸ªæ¨¡å—
 		dJointSetHingeAnchor(BodyJoint[i],-BodyLength-BodyLength*2*i,0+deltaY,ModuleHeightCen);
 		if(i%2 == 0)
-			dJointSetHingeAxis(BodyJoint[i],0,1,0);	//ÒÔYÖá×÷ÎªÅ¼ÊıÇı¶¯¹Ø½ÚµÄĞı×ªÖá£º¸©Ñö×ÔÓÉ¶È
+			dJointSetHingeAxis(BodyJoint[i],0,1,0);	//ä»¥Yè½´ä½œä¸ºå¶æ•°é©±åŠ¨å…³èŠ‚çš„æ—‹è½¬è½´ï¼šä¿¯ä»°è‡ªç”±åº¦
 		else
-			dJointSetHingeAxis(BodyJoint[i],0,0,1);	//ÒÔZÖá×÷ÎªÆæÊıÇı¶¯¹Ø½ÚµÄĞı×ªÖá£ºÆ«º½×ÔÓÉ¶È
+			dJointSetHingeAxis(BodyJoint[i],0,0,1);	//ä»¥Zè½´ä½œä¸ºå¥‡æ•°é©±åŠ¨å…³èŠ‚çš„æ—‹è½¬è½´ï¼šåèˆªè‡ªç”±åº¦
 		dJointSetHingeParam(BodyJoint[i], dParamLoStop, -M_PI/2);
 		dJointSetHingeParam(BodyJoint[i], dParamHiStop, M_PI/2);
 
 	}
 	
-	//Ìí¼ÓÍ·Î²Ä£¿éÆ«º½¹Ø½Ú
+	//æ·»åŠ å¤´å°¾æ¨¡å—åèˆªå…³èŠ‚
 	headJoint = dJointCreateHinge(world,0);
 	tailJoint = dJointCreateHinge(world,0);
-	dJointAttach(headJoint,SnakeHead.body,SnakeBody[0].body);	//	Á¬½ÓµÚ1¸öÄ£¿éºÍÍ·Ä£¿é
-	dJointAttach(tailJoint,SnakeBody[NumOfModule-1].body,SnakeTail.body);	//	Á¬½ÓµÚ8¸öÄ£¿éºÍÎ²Ä£¿é
+	dJointAttach(headJoint,SnakeHead.body,SnakeBody[0].body);	//	è¿æ¥ç¬¬1ä¸ªæ¨¡å—å’Œå¤´æ¨¡å—
+	dJointAttach(tailJoint,SnakeBody[NumOfModule-1].body,SnakeTail.body);	//	è¿æ¥ç¬¬8ä¸ªæ¨¡å—å’Œå°¾æ¨¡å—
 	dJointSetHingeAnchor(headJoint,0,0+deltaY,ModuleHeightCen);
 	dJointSetHingeAnchor(tailJoint,-ModuleLength-BodyLength*2*NumOfHinge,0+deltaY,ModuleHeightCen);
-	dJointSetHingeAxis(headJoint,0,0,1);	//ÒÔZÖá×÷ÎªÇı¶¯¹Ø½ÚµÄĞı×ªÖá
-	dJointSetHingeAxis(tailJoint,0,0,1);	//ÒÔZÖá×÷ÎªÇı¶¯¹Ø½ÚµÄĞı×ªÖá
+	dJointSetHingeAxis(headJoint,0,0,1);	//ä»¥Zè½´ä½œä¸ºé©±åŠ¨å…³èŠ‚çš„æ—‹è½¬è½´
+	dJointSetHingeAxis(tailJoint,0,0,1);	//ä»¥Zè½´ä½œä¸ºé©±åŠ¨å…³èŠ‚çš„æ—‹è½¬è½´
 	dJointSetHingeParam(headJoint, dParamLoStop, -M_PI/2);
 	dJointSetHingeParam(headJoint, dParamHiStop, M_PI/2);
 	dJointSetHingeParam(tailJoint, dParamLoStop, -M_PI/2);
@@ -309,10 +309,10 @@ static void start()
 {
   static float xyz[3] = {0,10,10};
   static float hpr[3] = {-90, -30, 0};
-  dsSetViewpoint (xyz,hpr);				// Éè¶¨ÊÓµãºÍÊÓÏß
+  dsSetViewpoint (xyz,hpr);				// è®¾å®šè§†ç‚¹å’Œè§†çº¿
 }
 
-//Ñ­»·³ÌĞò£¬Ã¿Ò»²½¶¼Ö´ĞĞÒ»´Î
+//å¾ªç¯ç¨‹åºï¼Œæ¯ä¸€æ­¥éƒ½æ‰§è¡Œä¸€æ¬¡
 
 static void simLoop(int pause)
 {
@@ -350,57 +350,57 @@ static void simLoop(int pause)
 	//dReal WallSize[3] = {WallLength,WallWidth,WallHeight};
 	for(i=0;i<NumOfModule;i++)
 	{
-		dsSetColorAlpha(1,1,1,1);	//ÉèÖÃÄ£¿éµÄÑÕÉ«
-		spos[i] = dBodyGetPosition(SnakeBody[i].body);		//»ñµÃÄ£¿éµ±Ç°µÄÎ»ÖÃ
-		sR[i]   = dBodyGetRotation(SnakeBody[i].body);		//»ñµÃÄ£¿éµ±Ç°µÄ×ËÌ¬
+		dsSetColorAlpha(1,1,1,1);	//è®¾ç½®æ¨¡å—çš„é¢œè‰²
+		spos[i] = dBodyGetPosition(SnakeBody[i].body);		//è·å¾—æ¨¡å—å½“å‰çš„ä½ç½®
+		sR[i]   = dBodyGetRotation(SnakeBody[i].body);		//è·å¾—æ¨¡å—å½“å‰çš„å§¿æ€
 		dReal SidesEven[3] = {BodyX,BodyY,BodyZ};
 		//dReal SidesOdd[3] = {BodyY,BodyX,BodyZ};
 		if(i%2==0)
-			dsDrawBox(spos[i],sR[i],SidesEven);	//ÓÃ»ñµÃµÄÎ»×ËºÍ³¤¶È¡¢°ë¾¶µÈ»æÖÆµ±Ç°µÄÄ£¿é
+			dsDrawBox(spos[i],sR[i],SidesEven);	//ç”¨è·å¾—çš„ä½å§¿å’Œé•¿åº¦ã€åŠå¾„ç­‰ç»˜åˆ¶å½“å‰çš„æ¨¡å—
 		else
-			dsDrawBox(spos[i],sR[i],SidesEven);	//ÓÃ»ñµÃµÄÎ»×ËºÍ³¤¶È¡¢°ë¾¶µÈ»æÖÆµ±Ç°µÄÄ£¿é
+			dsDrawBox(spos[i],sR[i],SidesEven);	//ç”¨è·å¾—çš„ä½å§¿å’Œé•¿åº¦ã€åŠå¾„ç­‰ç»˜åˆ¶å½“å‰çš„æ¨¡å—
 	}
 
 	for(i=0;i<NumOfHeadWheels;i++)
 	{
-		dsSetColorAlpha(1,0,0,1);	//ÉèÖÃÄ£¿éµÄÑÕÉ«
-		spos[i] = dBodyGetPosition(HeadWheelL[i].body);		//»ñµÃÄ£¿éµ±Ç°µÄÎ»ÖÃ
-		sR[i]   = dBodyGetRotation(HeadWheelL[i].body);		//»ñµÃÄ£¿éµ±Ç°µÄ×ËÌ¬
-		dsDrawCylinder(spos[i],sR[i],WheelLength,WheelRadius);	//ÓÃ»ñµÃµÄÎ»×ËºÍ³¤¶È¡¢°ë¾¶µÈ»æÖÆµ±Ç°µÄÄ£¿é
+		dsSetColorAlpha(1,0,0,1);	//è®¾ç½®æ¨¡å—çš„é¢œè‰²
+		spos[i] = dBodyGetPosition(HeadWheelL[i].body);		//è·å¾—æ¨¡å—å½“å‰çš„ä½ç½®
+		sR[i]   = dBodyGetRotation(HeadWheelL[i].body);		//è·å¾—æ¨¡å—å½“å‰çš„å§¿æ€
+		dsDrawCylinder(spos[i],sR[i],WheelLength,WheelRadius);	//ç”¨è·å¾—çš„ä½å§¿å’Œé•¿åº¦ã€åŠå¾„ç­‰ç»˜åˆ¶å½“å‰çš„æ¨¡å—
 	}
 
 	for(i=0;i<NumOfHeadWheels;i++)
 	{
-		dsSetColorAlpha(1,0,0,1);	//ÉèÖÃÄ£¿éµÄÑÕÉ«
-		spos[i] = dBodyGetPosition(HeadWheelR[i].body);		//»ñµÃÄ£¿éµ±Ç°µÄÎ»ÖÃ
-		sR[i]   = dBodyGetRotation(HeadWheelR[i].body);		//»ñµÃÄ£¿éµ±Ç°µÄ×ËÌ¬
-		dsDrawCylinder(spos[i],sR[i],WheelLength,WheelRadius);	//ÓÃ»ñµÃµÄÎ»×ËºÍ³¤¶È¡¢°ë¾¶µÈ»æÖÆµ±Ç°µÄÄ£¿é
+		dsSetColorAlpha(1,0,0,1);	//è®¾ç½®æ¨¡å—çš„é¢œè‰²
+		spos[i] = dBodyGetPosition(HeadWheelR[i].body);		//è·å¾—æ¨¡å—å½“å‰çš„ä½ç½®
+		sR[i]   = dBodyGetRotation(HeadWheelR[i].body);		//è·å¾—æ¨¡å—å½“å‰çš„å§¿æ€
+		dsDrawCylinder(spos[i],sR[i],WheelLength,WheelRadius);	//ç”¨è·å¾—çš„ä½å§¿å’Œé•¿åº¦ã€åŠå¾„ç­‰ç»˜åˆ¶å½“å‰çš„æ¨¡å—
 	}
 
 	for(i=0;i<NumOfHeadWheels;i++)
 	{
-		dsSetColorAlpha(1,0,0,1);	//ÉèÖÃÄ£¿éµÄÑÕÉ«
-		spos[i] = dBodyGetPosition(TailWheelL[i].body);		//»ñµÃÄ£¿éµ±Ç°µÄÎ»ÖÃ
-		sR[i]   = dBodyGetRotation(TailWheelL[i].body);		//»ñµÃÄ£¿éµ±Ç°µÄ×ËÌ¬
-		dsDrawCylinder(spos[i],sR[i],WheelLength,WheelRadius);	//ÓÃ»ñµÃµÄÎ»×ËºÍ³¤¶È¡¢°ë¾¶µÈ»æÖÆµ±Ç°µÄÄ£¿é
+		dsSetColorAlpha(1,0,0,1);	//è®¾ç½®æ¨¡å—çš„é¢œè‰²
+		spos[i] = dBodyGetPosition(TailWheelL[i].body);		//è·å¾—æ¨¡å—å½“å‰çš„ä½ç½®
+		sR[i]   = dBodyGetRotation(TailWheelL[i].body);		//è·å¾—æ¨¡å—å½“å‰çš„å§¿æ€
+		dsDrawCylinder(spos[i],sR[i],WheelLength,WheelRadius);	//ç”¨è·å¾—çš„ä½å§¿å’Œé•¿åº¦ã€åŠå¾„ç­‰ç»˜åˆ¶å½“å‰çš„æ¨¡å—
 	}
 
 	for(i=0;i<NumOfHeadWheels;i++)
 	{
-		dsSetColorAlpha(1,0,0,1);	//ÉèÖÃÄ£¿éµÄÑÕÉ«
-		spos[i] = dBodyGetPosition(TailWheelR[i].body);		//»ñµÃÄ£¿éµ±Ç°µÄÎ»ÖÃ
-		sR[i]   = dBodyGetRotation(TailWheelR[i].body);		//»ñµÃÄ£¿éµ±Ç°µÄ×ËÌ¬
-		dsDrawCylinder(spos[i],sR[i],WheelLength,WheelRadius);	//ÓÃ»ñµÃµÄÎ»×ËºÍ³¤¶È¡¢°ë¾¶µÈ»æÖÆµ±Ç°µÄÄ£¿é
+		dsSetColorAlpha(1,0,0,1);	//è®¾ç½®æ¨¡å—çš„é¢œè‰²
+		spos[i] = dBodyGetPosition(TailWheelR[i].body);		//è·å¾—æ¨¡å—å½“å‰çš„ä½ç½®
+		sR[i]   = dBodyGetRotation(TailWheelR[i].body);		//è·å¾—æ¨¡å—å½“å‰çš„å§¿æ€
+		dsDrawCylinder(spos[i],sR[i],WheelLength,WheelRadius);	//ç”¨è·å¾—çš„ä½å§¿å’Œé•¿åº¦ã€åŠå¾„ç­‰ç»˜åˆ¶å½“å‰çš„æ¨¡å—
 	}
 
 	dReal sidess[3] = {ModuleWidth,ModuleWidth,ModuleHeight};
-	dsSetColorAlpha(1,1,1,0.8);	//ÉèÖÃÍ·Î²Ä£¿éµÄÑÕÉ«
-	ap = dBodyGetPosition(SnakeHead.body);		//»ñµÃÄ£¿éµ±Ç°µÄÎ»ÖÃ
-	ar = dBodyGetRotation(SnakeHead.body);		//»ñµÃÄ£¿éµ±Ç°µÄ×ËÌ¬
-	dsDrawBox(ap,ar,sidess);	//ÓÃ»ñµÃµÄÎ»×ËºÍ³¤¶È¡¢°ë¾¶µÈ»æÖÆµ±Ç°µÄÄ£¿é
-	ap = dBodyGetPosition(SnakeTail.body);		//»ñµÃÄ£¿éµ±Ç°µÄÎ»ÖÃ
-	ar = dBodyGetRotation(SnakeTail.body);		//»ñµÃÄ£¿éµ±Ç°µÄ×ËÌ¬
-	dsDrawBox(ap,ar,sidess);	//ÓÃ»ñµÃµÄÎ»×ËºÍ³¤¶È¡¢°ë¾¶µÈ»æÖÆµ±Ç°µÄÄ£¿é
+	dsSetColorAlpha(1,1,1,0.8);	//è®¾ç½®å¤´å°¾æ¨¡å—çš„é¢œè‰²
+	ap = dBodyGetPosition(SnakeHead.body);		//è·å¾—æ¨¡å—å½“å‰çš„ä½ç½®
+	ar = dBodyGetRotation(SnakeHead.body);		//è·å¾—æ¨¡å—å½“å‰çš„å§¿æ€
+	dsDrawBox(ap,ar,sidess);	//ç”¨è·å¾—çš„ä½å§¿å’Œé•¿åº¦ã€åŠå¾„ç­‰ç»˜åˆ¶å½“å‰çš„æ¨¡å—
+	ap = dBodyGetPosition(SnakeTail.body);		//è·å¾—æ¨¡å—å½“å‰çš„ä½ç½®
+	ar = dBodyGetRotation(SnakeTail.body);		//è·å¾—æ¨¡å—å½“å‰çš„å§¿æ€
+	dsDrawBox(ap,ar,sidess);	//ç”¨è·å¾—çš„ä½å§¿å’Œé•¿åº¦ã€åŠå¾„ç­‰ç»˜åˆ¶å½“å‰çš„æ¨¡å—
 	
 
 	//controller(steps++);
@@ -416,7 +416,7 @@ static void simLoop(int pause)
 			ch = getch();
 			if(ch == 119 || ch == 115 || ch == 97 || ch == 100)
 				break;
-		}// wÇ°½ø£¬sºóÍË£¬a×ó×ª£¬dÓÒ×ª
+		}// wå‰è¿›ï¼Œsåé€€ï¼Œaå·¦è½¬ï¼Œdå³è½¬
 	controller(steps++,ch);
 
 }
@@ -438,14 +438,14 @@ int main (int argc, char **argv)
 	prepDrawStuff();
 	
 
-	world = dWorldCreate();//Éú³É¶¯Á¦Ñ§¼ÆËãÓÃµÄworld
-	space = dHashSpaceCreate(0);//Éú³ÉÅö×²¼ì²âÓÃµÄspace
-	contactgroup = dJointGroupCreate(0);//Éú³ÉÅö×²¼ì²âÓÃµÄÌØÊâ¹Ø½Ú
-	dWorldSetGravity(world,0,0,-9.81);//ÉèÎªµØÇòÖØÁ¦¼ÓËÙ¶È
-	ground = dCreatePlane(space,0,0,1,0);//ÔÚspaceÖĞ´´½¨ÁËz=0Æ½Ãæ£¬ÓÃÓÚÅö×²¼ì²â
+	world = dWorldCreate();//ç”ŸæˆåŠ¨åŠ›å­¦è®¡ç®—ç”¨çš„world
+	space = dHashSpaceCreate(0);//ç”Ÿæˆç¢°æ’æ£€æµ‹ç”¨çš„space
+	contactgroup = dJointGroupCreate(0);//ç”Ÿæˆç¢°æ’æ£€æµ‹ç”¨çš„ç‰¹æ®Šå…³èŠ‚
+	dWorldSetGravity(world,0,0,-9.81);//è®¾ä¸ºåœ°çƒé‡åŠ›åŠ é€Ÿåº¦
+	ground = dCreatePlane(space,0,0,1,0);//åœ¨spaceä¸­åˆ›å»ºäº†z=0å¹³é¢ï¼Œç”¨äºç¢°æ’æ£€æµ‹
 
-	dWorldSetERP(world,0.2);//ÉèÖÃERP²ÎÊı
-	dWorldSetCFM(world,1e-5);//ÉèÖÃCFM²ÎÊı
+	dWorldSetERP(world,0.2);//è®¾ç½®ERPå‚æ•°
+	dWorldSetCFM(world,1e-5);//è®¾ç½®CFMå‚æ•°
 	
 	headTailCreator();
 	bodyCreator();
@@ -473,19 +473,19 @@ int main (int argc, char **argv)
 
 void controller(int steps, int ch)
 {
-	float desire_angle[NumOfHinge+2] = {};	//Ä¿±ê½Ç¶È{BodyJoint[0],...,BodyJoint[NumOfHinge-1],headJoint,tailJoint}
-	float diff_angle[NumOfHinge+2] = {};		//µ±Ç°½Ç¶È-Ä¿±ê½Ç¶È
+	float desire_angle[NumOfHinge+2] = {};	//ç›®æ ‡è§’åº¦{BodyJoint[0],...,BodyJoint[NumOfHinge-1],headJoint,tailJoint}
+	float diff_angle[NumOfHinge+2] = {};		//å½“å‰è§’åº¦-ç›®æ ‡è§’åº¦
 	float maxtorque = 1000;
 
 	if(steps<4000)
 	{
-		//¸úËæÉßĞÎÇúÏß¹ì¼£
+		//è·Ÿéšè›‡å½¢æ›²çº¿è½¨è¿¹
 		for(int i=0; i<NumOfHinge; i++)
 		{
 				desire_angle[i] = 0;
 		}
-		desire_angle[NumOfHinge] = 0;//Í·²¿Æ«º½½Ç¶È M_PI/18000*steps;
-		desire_angle[NumOfHinge+1] = 0;//Î²²¿Æ«º½½Ç¶È
+		desire_angle[NumOfHinge] = 0;//å¤´éƒ¨åèˆªè§’åº¦ M_PI/18000*steps;
+		desire_angle[NumOfHinge+1] = 0;//å°¾éƒ¨åèˆªè§’åº¦
 		int HLvel = 0;
 		int HRvel = 0;
 		int TLvel = 0;
@@ -567,3 +567,4 @@ void controller(int steps, int ch)
 	dJointSetHingeParam(tailJoint,dParamFMax,maxtorque);
 
 }
+
