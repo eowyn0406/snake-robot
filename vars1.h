@@ -1,146 +1,40 @@
 /**************************************/
-/*****ÓÃÓÚ¶¨Òå³ÌĞòÖĞÊ¹ÓÃµ½µÄ³£Á¿Öµ*****/
+/*****ç”¨äºå®šä¹‰ç¨‹åºä¸­ä½¿ç”¨åˆ°çš„å¸¸é‡å€¼*****/
 /**************************************/
 #ifndef _VARS_H_
 #define _VARS_H_
+#define PassWheelDensity (0.0001)
+#define PassWheelRadius (0.2)
+#define deltaX (0.1)
+#define BodyX (0.4)
+#define BodyY (0.05)
+#define BodyZ (0.15)
+#define	DensityOfBody (0.04)
 
-#ifndef BodyX
-#define BodyX (0.6)
-#endif
-
-#ifndef BodyY
-#define BodyY (0.1)
-#endif
-
-#ifndef BodyZ
-#define BodyZ (0.4)
-#endif
-//Éß¡°Ä£¿é¡±Ïà¹Ø²ÎÊı
-#ifndef NumOfModule
-#define NumOfModule (7)		//Ä£¿éÊıÁ¿
-#else 
-	#error "error in vars.h: The NumOfModule has been defined!!!"
-#endif
-
-#ifndef DensityOfModule
+#define NumOfModule (7)		//æ¨¡å—æ•°é‡
 #define DensityOfModule (0.08)
-#else 
-	#error "error in vars.h: The DensityOfModule has been defined!!!"
-#endif
+#define NumOfHinge (NumOfModule-1)	//æ¨¡å—é—´ç”¨HingeJointè¿æ¥ï¼Œå…³èŠ‚æ•°é‡
 
-#ifndef NumOfHinge
-#define NumOfHinge (NumOfModule-1)	//Ä£¿é¼äÓÃHingeJointÁ¬½Ó£¬¹Ø½ÚÊıÁ¿
-#else 
-	#error "error in vars.h: The NumOfHinge has been defined!!!"
-#endif
-
-
-
-#ifndef ModuleWidth
 #define ModuleWidth (0.4)//
-#else 
-	#error "error in vars.h: The ModuleWidth has been defined!!!"
-#endif
+#define ModuleLength (0.4)
+#define ModuleHeight (0.3)//
 
-#ifndef ModuleLength
-#define ModuleLength (0.6)
-//(ModuleWidth*sqrt(2))//0.045
-#else 
-	#error "error in vars.h: The ModuleLength has been defined!!!"
-#endif
+//â€œè¢«åŠ¨è½®â€ç›¸å…³å‚æ•°
+#define NumOfWheelPair (NumOfModule)	//æ¯ä¸ªæ¨¡å—1å¯¹è½®å­ï¼Œè½®å­æ•°é‡ï¼Œè½¬åŠ¨å…³èŠ‚æ•°é‡
+#define	DensityOfWheel (0.001)
 
-#ifndef BodyLength
-#define BodyLength (0.4)
-#endif
-
-#ifndef ModuleHeight
-#define ModuleHeight (0.4)//
-#else 
-	#error "error in vars.h: The ModuleHeight has been defined!!!"
-#endif
-
-#ifndef ModuleHeightCen
-#define ModuleHeightCen (0.3)//
-#else 
-	#error "error in vars.h: The ModuleHeight has been defined!!!"
-#endif
-
-
-
-//¡°±»¶¯ÂÖ¡±Ïà¹Ø²ÎÊı
-#ifndef NumOfWheelPair
-#define NumOfWheelPair (NumOfModule)	//Ã¿¸öÄ£¿é1¶ÔÂÖ×Ó£¬ÂÖ×ÓÊıÁ¿£¬×ª¶¯¹Ø½ÚÊıÁ¿
-#else 
-	#error "error in vars.h: The NumOfWheelPair has been defined!!!"
-#endif
-
-#ifndef DensityOfWheel
-#define	DensityOfWheel (0.08)
-#else 
-	#error "error in vars.h: The DensityOfWheel has been defined!!!"
-#endif
-
-#ifndef DensityOfBody
-#define	DensityOfBody (0.008)
-#else 
-	#error "error in vars.h: The DensityOfBody has been defined!!!"
-#endif
-
-#ifndef WheelRadius 
 #define WheelRadius (0.2)
-#else 
-	#error "error in vars.h: The WheelRadius has been defined!!!"
-#endif
-
-#ifndef WheelWidth
 #define WheelWidth (0.1)
-#else 
-	#error "error in vars.h: The WheelWidth has been defined!!!"
-#endif
 
-//¡°¹Ü±Ú¡±Ïà¹Ø²ÎÊı
-
-#ifndef DensityOfWall
+//â€œç®¡å£â€ç›¸å…³å‚æ•°
 #define DensityOfWall (0.98)
-#else 
-	#error "error in vars.h: The DensityOfWall has been defined!!!"
-#endif
-
-#ifndef WallLength
 #define WallLength (0.1)
-#else 
-	#error "error in vars.h: The WallLength has been defined!!!"
-#endif
-
-#ifndef WallWidth
 #define WallWidth (0.2)
-#else 
-	#error "error in vars.h: The WallWidth has been defined!!!"
-#endif
-
-#ifndef WallHeight
 #define WallHeight (0.1)
-#else 
-	#error "error in vars.h: The WallHeight has been defined!!!"
-#endif
 
-//ÊÀ½ç×ø±êÆ«ÒÆÁ¿
-#ifndef deltaY
 #define deltaY (0.5)
-#else 
-	#error "error in vars.h: The deltaY has been defined!!!"
-#endif
-
-#ifndef ModuleRadius
 #define ModuleRadius (0.2)
-#endif
-
-#ifndef NumOfHeadWheels
 #define NumOfHeadWheels (1)
-#endif
-
-#ifndef WheelLength
-#define WheelLength (0.05)
-#endif
+#define WheelLength (0.15)
 
 #endif
