@@ -4,6 +4,7 @@
 //----- jointtype of the snake：
 //----- head-yaw-body0-pitch-body1-yaw-body2-pitch...-pitch-body7-yaw-tail
 //------- 头-偏航-身体0-俯仰-身体1-偏航-身体2-俯仰-...-俯仰-身体7-偏航-尾
+//----- add passive wheels
 //===========================================================//
 
 
@@ -46,8 +47,9 @@ MyObjects HeadWheelL[NumOfHeadWheels];	//生成头部主动轮左
 MyObjects TailWheelR[NumOfHeadWheels];	//生成尾部主动轮右
 MyObjects TailWheelL[NumOfHeadWheels];	//生成尾部主动轮左
 
-//MyObjects RightWheel[NumOfWheelPair];		//生成N个右边的轮子
-//MyObjects LeftWheel[NumOfWheelPair];		//生成N个左边的轮子
+//被动轮
+MyObjects PassRightWheel[NumOfModule];		//生成N个右边的轮子
+MyObjects PassLeftWheel[NumOfModule];		//生成N个左边的轮子
 
 //生成沟渠环境
 //MyObjects LeftWall;	//生成两边沟渠
@@ -59,13 +61,13 @@ static dGeomID  ground;	//定义变量groud，类型为dGeomID
 static dJointID BodyJoint[NumOfHinge];	//用来连接各个模块的关节
 static dJointID headJoint;	//连接头部和身体的偏航关节
 static dJointID tailJoint;	//连接身体和尾部的偏航关节
-static dJointID HeadWheelLeftJoint[NumOfHeadWheels];
-static dJointID HeadWheelRightJoint[NumOfHeadWheels];
-static dJointID TailWheelLeftJoint[NumOfHeadWheels];
-static dJointID TailWheelRightJoint[NumOfHeadWheels];
+static dJointID HeadWheelLeftJoint[NumOfHeadWheels];	//连接头部和头部左轮的关节
+static dJointID HeadWheelRightJoint[NumOfHeadWheels];	//连接头部和头部右轮的关节
+static dJointID TailWheelLeftJoint[NumOfHeadWheels];	//连接尾部和尾部左轮的关节
+static dJointID TailWheelRightJoint[NumOfHeadWheels];	//连接尾部和尾部右轮的关节
 
-//static dJointID RotateJoint_RightWheel[NumOfWheelPair];	//用来连接右边轮子和模块的关节
-//static dJointID RotateJoint_LeftWheel[NumOfWheelPair];	//用来连接右边轮子和模块的关节
+static dJointID RJ_PassRightWheel[NumOfModule];	//用来连接右边轮子和身体模块的关节
+static dJointID RJ_PassLeftWheel[NumOfModule];	//用来连接右边轮子和身体模块的关节
 
 static dJointGroupID contactgroup;	//定义关节组contactgroup，用来存放碰撞检测中需要的特殊关节
 static int flag = 0;
@@ -90,11 +92,12 @@ void headTailCreator()
 {
 	SnakeHead.body = dBodyCreate(world);
 	SnakeTail.body = dBodyCreate(world);
-	SnakeHead.geom = dCreateBox(space,ModuleWidth*2,ModuleWidth,ModuleHeight);
-	SnakeTail.geom = dCreateBox(space,ModuleWidth*2,ModuleWidth,ModuleHeight);
+	SnakeHead.geom = dCreateBox(space,ModuleWidth/2,ModuleWidth,ModuleHeight);
+	SnakeTail.geom = dCreateBox(space,ModuleWidth/2,ModuleWidth,ModuleHeight);
 	dGeomSetBody(SnakeHead.geom,SnakeHead.body);
 	dGeomSetBody(SnakeTail.geom,SnakeTail.body);
 			
+
 	dMass m;
 	dMassSetZero (&m);			//设置质量为零
 	dMatrix3 Sp;
@@ -103,12 +106,12 @@ void headTailCreator()
 	dMassSetBox(&m,DensityOfModule,ModuleWidth,ModuleWidth,ModuleHeight);
 
 	dBodySetMass (SnakeHead.body,&m);
-	dReal CenHead[] = {ModuleWidth+BodyLength/2+ModuleLength/2,deltaY,ModuleHeightCen};
+	dReal CenHead[] = {BodyX/2+ModuleLength/2+deltaX/2,deltaY,WheelRadius};
 	dBodySetPosition(SnakeHead.body,CenHead[0],CenHead[1],CenHead[2]);
 	dBodySetRotation(SnakeHead.body,Sp);
 
 	dBodySetMass (SnakeTail.body,&m);
-	dReal CenTail[] = {-BodyLength*2*NumOfModule-ModuleWidth+BodyLength/2,deltaY,ModuleHeightCen};
+	dReal CenTail[] = {-(BodyX+deltaX)*NumOfModule+(BodyX+deltaX)/2-ModuleLength/2,deltaY,WheelRadius};
 	dBodySetPosition(SnakeTail.body,CenTail[0],CenTail[1],CenTail[2]);
 	dBodySetRotation(SnakeTail.body,Sp);
 
@@ -133,28 +136,28 @@ void headTailCreator()
 		dMassSetCylinder(&m,DensityOfWheel,3,WheelRadius,WheelLength);
 
 		dBodySetMass (HeadWheelL[i].body,&m);
-		dBodySetPosition(HeadWheelL[i].body,CenHead[0],deltaY+ModuleWidth/2+WheelLength/2, ModuleHeightCen-ModuleHeight/2+WheelRadius*7/8);
+		dBodySetPosition(HeadWheelL[i].body,CenHead[0],CenHead[1]+ModuleWidth/2+WheelLength/2+0.01, WheelRadius);
 
 		//dBodySetPosition(HeadWheelL[i].body,sqrt(2)*ModuleWidth/2+7*ModuleLength/4-0.25*i*ModuleLength,deltaY+ModuleWidth/2+WheelLength/2, ModuleHeightCen-ModuleHeight/2+WheelRadius*7/8);
 		dRFrom2Axes(Sp,0,0,1,1,0,0);	//分别以世界坐标系的Z,X轴作为轮子本体的X,Y轴
 		dBodySetRotation(HeadWheelL[i].body,Sp);
 
 		dBodySetMass (HeadWheelR[i].body,&m);
-		dBodySetPosition(HeadWheelR[i].body,CenHead[0],deltaY-ModuleWidth/2-WheelLength/2, ModuleHeightCen-ModuleHeight/2+WheelRadius*7/8);
+		dBodySetPosition(HeadWheelR[i].body,CenHead[0],CenHead[1]-ModuleWidth/2-WheelLength/2-0.01, WheelRadius);
 		
 		//dBodySetPosition(HeadWheelR[i].body,sqrt(2)*ModuleWidth/2+7*ModuleLength/4-0.25*i*ModuleLength,deltaY-ModuleWidth/2-WheelLength/2, ModuleHeightCen-ModuleHeight/2+WheelRadius*7/8);
 		dRFrom2Axes(Sp,0,0,1,1,0,0);	//分别以世界坐标系的Z,X轴作为轮子本体的X,Y轴
 		dBodySetRotation(HeadWheelR[i].body,Sp);
 
 		dBodySetMass (TailWheelL[i].body,&m);
-		dBodySetPosition(TailWheelL[i].body,CenTail[0],deltaY+ModuleWidth/2+WheelLength/2, ModuleHeightCen-ModuleHeight/2+WheelRadius*7/8);
+		dBodySetPosition(TailWheelL[i].body,CenTail[0],CenTail[1]+ModuleWidth/2+WheelLength/2+0.01, WheelRadius);
 
 		//dBodySetPosition(TailWheelL[i].body,-2*NumOfModule*BodyLength-sqrt(2)*ModuleWidth/2+3*ModuleLength/4-0.25*i*ModuleLength,deltaY+ModuleWidth/2+WheelLength/2, ModuleHeightCen-ModuleHeight/2+WheelRadius*7/8);
 		dRFrom2Axes(Sp,0,0,1,1,0,0);	//分别以世界坐标系的Z,X轴作为轮子本体的X,Y轴
 		dBodySetRotation(TailWheelL[i].body,Sp);
 
 		dBodySetMass (TailWheelR[i].body,&m);
-		dBodySetPosition(TailWheelR[i].body,CenTail[0],deltaY-ModuleWidth/2-WheelLength/2, ModuleHeightCen-ModuleHeight/2+WheelRadius*7/8);
+		dBodySetPosition(TailWheelR[i].body,CenTail[0],CenTail[1]-ModuleWidth/2-WheelLength/2-0.01, WheelRadius);
 		
 		//dBodySetPosition(TailWheelR[i].body,-2*NumOfModule*BodyLength-sqrt(2)*ModuleWidth/2+3*ModuleLength/4-0.25*i*ModuleLength,deltaY-ModuleWidth/2-WheelLength/2, ModuleHeightCen-ModuleHeight/2+WheelRadius*7/8);
 		dRFrom2Axes(Sp,0,0,1,1,0,0);	//分别以世界坐标系的Z,X轴作为轮子本体的X,Y轴
@@ -163,7 +166,7 @@ void headTailCreator()
 	}
 
 	//添加头尾主动轮关节
-	dReal deltay = 0.001;
+	dReal deltay = WheelLength/2+0.001;
 	for(int i=0; i<NumOfHeadWheels; i++)
 	{
 		HeadWheelLeftJoint[i] = dJointCreateHinge(world,0);
@@ -175,14 +178,14 @@ void headTailCreator()
 		dJointAttach(TailWheelLeftJoint[i],SnakeTail.body,TailWheelL[i].body);
 		dJointAttach(TailWheelRightJoint[i],SnakeTail.body,TailWheelR[i].body);
 		
-		dJointSetHingeAnchor(HeadWheelLeftJoint[i],CenHead[0],deltaY+ModuleWidth/2+deltay, ModuleHeightCen-ModuleHeight/2+WheelRadius*7/8);
+		dJointSetHingeAnchor(HeadWheelLeftJoint[i],CenHead[0],deltaY+ModuleWidth/2+deltay, WheelRadius);
 		dJointSetHingeAxis(HeadWheelLeftJoint[i],0,1,0);
-		dJointSetHingeAnchor(HeadWheelRightJoint[i],CenHead[0],deltaY-ModuleWidth/2-deltay, ModuleHeightCen-ModuleHeight/2+WheelRadius*7/8);
+		dJointSetHingeAnchor(HeadWheelRightJoint[i],CenHead[0],deltaY-ModuleWidth/2-deltay, WheelRadius);
 		dJointSetHingeAxis(HeadWheelRightJoint[i],0,1,0);
 
-		dJointSetHingeAnchor(TailWheelLeftJoint[i],CenTail[0],deltaY+ModuleWidth/2+deltay, ModuleHeightCen-ModuleHeight/2+WheelRadius*7/8);
+		dJointSetHingeAnchor(TailWheelLeftJoint[i],CenTail[0],deltaY+ModuleWidth/2+deltay, WheelRadius);
 		dJointSetHingeAxis(TailWheelLeftJoint[i],0,1,0);
-		dJointSetHingeAnchor(TailWheelRightJoint[i],CenTail[0],deltaY-ModuleWidth/2-deltay, ModuleHeightCen-ModuleHeight/2+WheelRadius*7/8);
+		dJointSetHingeAnchor(TailWheelRightJoint[i],CenTail[0],deltaY-ModuleWidth/2-deltay, WheelRadius);
 		dJointSetHingeAxis(TailWheelRightJoint[i],0,1,0);
 	}
 	
@@ -193,11 +196,17 @@ void bodyCreator()
 	for(int i=0;i<NumOfModule;i++)
 	{
 		SnakeBody[i].body = dBodyCreate (world);		//生成各个模块
-		if(i%2==0)
-			SnakeBody[i].geom = dCreateBox(space,BodyX,BodyY,BodyZ);//生成几何形状
-		else
-			SnakeBody[i].geom = dCreateBox(space,BodyY,BodyX,BodyZ);//生成几何形状
+		PassRightWheel[i].body = dBodyCreate (world);
+		PassRightWheel[i].geom = dCreateCylinder(space,PassWheelRadius,WheelLength);
+		PassLeftWheel[i].body = dBodyCreate (world);
+		PassLeftWheel[i].geom = dCreateCylinder(space,PassWheelRadius,WheelLength);
+		//if(i%2==0)
+			SnakeBody[i].geom = dCreateBox(space,BodyX/2,BodyY,BodyZ);//生成几何形状
+		//else
+			//SnakeBody[i].geom = dCreateBox(space,BodyY,BodyX,BodyZ);//生成几何形状
 		dGeomSetBody(SnakeBody[i].geom,SnakeBody[i].body);//添加关联geom和body
+		dGeomSetBody(PassRightWheel[i].geom,SnakeBody[i].body);//添加关联geom和body
+		dGeomSetBody(PassLeftWheel[i].geom,SnakeBody[i].body);//添加关联geom和body
 	}
 
 	bodyPositionSet();
@@ -210,22 +219,34 @@ void bodyPositionSet()
 	dMatrix3 Sp_SnakeBody[NumOfModule];	//每个模块的位姿矩阵
 	dMass m;
 	dMassSetZero (&m);			//设置质量为零
+	dMatrix3 passwheel;
+	dRFrom2Axes(passwheel,0,0,1,1,0,0);
+	for(int i=0;i<NumOfModule;i++)
+	{
+		dMassSetCylinder (&m,PassWheelDensity,3,PassWheelRadius,WheelLength);
+		dBodySetMass(PassRightWheel[i].body,&m);
+		dBodySetPosition(PassRightWheel[i].body,-BodyX*i-i*deltaX,-BodyY/2-WheelLength/2-0.01+deltaY,PassWheelRadius);
+		dBodySetRotation(PassRightWheel[i].body,passwheel);
+		dBodySetMass(PassLeftWheel[i].body,&m);
+		dBodySetPosition(PassLeftWheel[i].body,-BodyX*i-i*deltaX,BodyY/2+WheelLength/2+0.01+deltaY,PassWheelRadius);
+		dBodySetRotation(PassLeftWheel[i].body,passwheel);
+	}
 	for(int i=0;i<NumOfModule;i++)
 	{
 		dRFrom2Axes(Sp_SnakeBody[i],1,0,0,0,1,0);	//分别以世界坐标系的X,Y轴作为模块本体的X,Y轴
-		if(i%2==0)
+		//if(i%2==0)
 			dMassSetBox(&m,DensityOfBody,BodyX,BodyY,BodyZ);
-		else
-			dMassSetBox(&m,DensityOfBody,BodyY,BodyX,BodyZ);
+		//else
+			//dMassSetBox(&m,DensityOfBody,BodyX,BodyZ,BodyY);
 		dBodySetMass (SnakeBody[i].body,&m);
-		dBodySetPosition(SnakeBody[i].body,-BodyLength*2*i,0+deltaY,ModuleHeightCen);
+		dBodySetPosition(SnakeBody[i].body,-BodyX*i-i*deltaX,0+deltaY,PassWheelRadius);
 		dBodySetRotation(SnakeBody[i].body,Sp_SnakeBody[i]);
 	}
 }
 
 void environmentSet()
 {
-		//生成两面墙体
+	//生成两面墙体
 	/*LeftWall.body = dBodyCreate(world);
 	LeftWall.geom = dCreateBox(space, WallLength, WallWidth, WallHeight);
 	dGeomSetBody(LeftWall.geom, LeftWall.body);
@@ -253,29 +274,47 @@ void jointConnect()
 	{
 		BodyJoint[i] = dJointCreateHinge(world,0);
 		dJointAttach(BodyJoint[i],SnakeBody[i].body,SnakeBody[i+1].body);	//	连接第i个模块和第i+1个模块
-		dJointSetHingeAnchor(BodyJoint[i],-BodyLength-BodyLength*2*i,0+deltaY,ModuleHeightCen);
+		dJointSetHingeAnchor(BodyJoint[i],-BodyX/2-deltaX/2-BodyX*i-i*deltaX,0+deltaY,PassWheelRadius);
 		if(i%2 == 0)
 			dJointSetHingeAxis(BodyJoint[i],0,1,0);	//以Y轴作为偶数驱动关节的旋转轴：俯仰自由度
 		else
 			dJointSetHingeAxis(BodyJoint[i],0,0,1);	//以Z轴作为奇数驱动关节的旋转轴：偏航自由度
 		dJointSetHingeParam(BodyJoint[i], dParamLoStop, -M_PI/2);
 		dJointSetHingeParam(BodyJoint[i], dParamHiStop, M_PI/2);
-
+		dJointSetHingeParam(BodyJoint[i],dParamBounce,0.01);	//保证关节为刚性关节
 	}
 	
+	for(int i=0;i<NumOfModule;i++)
+	{
+		RJ_PassRightWheel[i] = dJointCreateHinge(world,0);
+		RJ_PassLeftWheel[i] = dJointCreateHinge(world,0);
+
+		dJointAttach(RJ_PassRightWheel[i],SnakeBody[i].body,PassRightWheel[i].body);
+		dJointSetHingeAnchor(RJ_PassRightWheel[i],-BodyX*i-i*deltaX,-BodyY/2+deltaY,PassWheelRadius);
+		dJointSetHingeAxis(RJ_PassRightWheel[i],0,1,0);
+		
+		dJointAttach(RJ_PassLeftWheel[i],SnakeBody[i].body,PassLeftWheel[i].body);
+		dJointSetHingeAnchor(RJ_PassLeftWheel[i],-BodyX*i-i*deltaX,BodyY/2+deltaY,PassWheelRadius);
+		dJointSetHingeAxis(RJ_PassLeftWheel[i],0,1,0);
+
+	}
+	 
+
 	//添加头尾模块偏航关节
 	headJoint = dJointCreateHinge(world,0);
 	tailJoint = dJointCreateHinge(world,0);
 	dJointAttach(headJoint,SnakeHead.body,SnakeBody[0].body);	//	连接第1个模块和头模块
 	dJointAttach(tailJoint,SnakeBody[NumOfModule-1].body,SnakeTail.body);	//	连接第8个模块和尾模块
-	dJointSetHingeAnchor(headJoint,0,0+deltaY,ModuleHeightCen);
-	dJointSetHingeAnchor(tailJoint,-ModuleLength-BodyLength*2*NumOfHinge,0+deltaY,ModuleHeightCen);
+	dJointSetHingeAnchor(headJoint,0,0+deltaY,ModuleHeight/2);
+	dJointSetHingeAnchor(tailJoint,-ModuleLength/2-(BodyX+deltaX)*NumOfHinge+(BodyX+deltaX)/2,0+deltaY,ModuleHeight/2);
 	dJointSetHingeAxis(headJoint,0,0,1);	//以Z轴作为驱动关节的旋转轴
 	dJointSetHingeAxis(tailJoint,0,0,1);	//以Z轴作为驱动关节的旋转轴
 	dJointSetHingeParam(headJoint, dParamLoStop, -M_PI/2);
 	dJointSetHingeParam(headJoint, dParamHiStop, M_PI/2);
 	dJointSetHingeParam(tailJoint, dParamLoStop, -M_PI/2);
 	dJointSetHingeParam(tailJoint, dParamHiStop, M_PI/2);
+	dJointSetHingeParam(headJoint,dParamBounce,0.01);//保证关节为刚性关节
+	dJointSetHingeParam(tailJoint,dParamBounce,0.01);//保证关节为刚性关节
 
 
 	
@@ -294,11 +333,11 @@ static void nearCallback(void *data, dGeomID o1, dGeomID o2)
 		if (n >= 1) flag = 1;
     else        flag = 0;
     for (int i = 0; i < n; i++) {
-      contact[i].surface.mode = dContactBounce;//
-      contact[i].surface.mu   = 0.8;
-	  //contact[i].surface.mu2 = 0;//
-      contact[i].surface.bounce     = 0.2; // (0.0~1.0) restitution parameter
-      //contact[i].surface.bounce_vel = 0; // minimum incoming velocity for bounce
+      contact[i].surface.mode = dContactBounce|dContactSoftERP|dContactSoftCFM;//
+      contact[i].surface.mu   = 0.5;
+      contact[i].surface.bounce     = 0; // (0.0~1.0) restitution parameter
+	  contact[i].surface.soft_erp = 0.8; //
+	  contact[i].surface.soft_cfm = 0.5; //
       dJointID c = dJointCreateContact(world,contactgroup,&contact[i]);
       dJointAttach (c,dGeomGetBody(contact[i].geom.g1),dGeomGetBody(contact[i].geom.g2));
     }
@@ -346,7 +385,7 @@ static void simLoop(int pause)
 
 
 	int i;
-	dReal sides[3] = {BodyLength,ModuleWidth,ModuleHeight};
+	//dReal sides[3] = {BodyLength,ModuleWidth,ModuleHeight};
 	//dReal WallSize[3] = {WallLength,WallWidth,WallHeight};
 	for(i=0;i<NumOfModule;i++)
 	{
@@ -354,11 +393,11 @@ static void simLoop(int pause)
 		spos[i] = dBodyGetPosition(SnakeBody[i].body);		//获得模块当前的位置
 		sR[i]   = dBodyGetRotation(SnakeBody[i].body);		//获得模块当前的姿态
 		dReal SidesEven[3] = {BodyX,BodyY,BodyZ};
-		//dReal SidesOdd[3] = {BodyY,BodyX,BodyZ};
-		if(i%2==0)
+		//dReal SidesOdd[3] = {BodyX,BodyZ,BodyY};
+		//if(i%2==0)
 			dsDrawBox(spos[i],sR[i],SidesEven);	//用获得的位姿和长度、半径等绘制当前的模块
-		else
-			dsDrawBox(spos[i],sR[i],SidesEven);	//用获得的位姿和长度、半径等绘制当前的模块
+		//else
+			//dsDrawBox(spos[i],sR[i],SidesOdd);	//用获得的位姿和长度、半径等绘制当前的模块
 	}
 
 	for(i=0;i<NumOfHeadWheels;i++)
@@ -402,6 +441,16 @@ static void simLoop(int pause)
 	ar = dBodyGetRotation(SnakeTail.body);		//获得模块当前的姿态
 	dsDrawBox(ap,ar,sidess);	//用获得的位姿和长度、半径等绘制当前的模块
 	
+	for(int i=0;i<NumOfModule;i++)
+	{
+		dsSetColorAlpha(1,0,0,1);	//设置模块的颜色
+		spos[i] = dBodyGetPosition(PassLeftWheel[i].body);		//获得模块当前的位置
+		sR[i]   = dBodyGetRotation(PassLeftWheel[i].body);		//获得模块当前的姿态
+		dsDrawCylinder(spos[i],sR[i],WheelLength,PassWheelRadius);	//用获得的位姿和长度、半径等绘制当前的模块
+		spos[i] = dBodyGetPosition(PassRightWheel[i].body);		//获得模块当前的位置
+		sR[i]   = dBodyGetRotation(PassRightWheel[i].body);		//获得模块当前的姿态
+		dsDrawCylinder(spos[i],sR[i],WheelLength,PassWheelRadius);	//用获得的位姿和长度、半径等绘制当前的模块
+	}
 
 	//controller(steps++);
 	//const dReal* Head;
@@ -445,11 +494,13 @@ int main (int argc, char **argv)
 	ground = dCreatePlane(space,0,0,1,0);//在space中创建了z=0平面，用于碰撞检测
 
 	dWorldSetERP(world,0.2);//设置ERP参数
-	dWorldSetCFM(world,1e-5);//设置CFM参数
+	dWorldSetCFM(world,0.5);//设置CFM参数
 	
 	headTailCreator();
 	bodyCreator();
 	jointConnect();
+
+	dWorldSetContactSurfaceLayer(world,0.001);
 
 	ofstream out("snakeposition.txt",ios::app);
 	const dReal* sp;
@@ -477,45 +528,49 @@ void controller(int steps, int ch)
 	float diff_angle[NumOfHinge+2] = {};		//当前角度-目标角度
 	float maxtorque = 1000;
 
-	if(steps<4000)
+	if(steps>100 && steps<4000)
 	{
 		//跟随蛇形曲线轨迹
 		for(int i=0; i<NumOfHinge; i++)
 		{
+			//if(i%2==0)
+			//	desire_angle[i] = M_PI/1000;
+			//else
 				desire_angle[i] = 0;
 		}
 		desire_angle[NumOfHinge] = 0;//头部偏航角度 M_PI/18000*steps;
 		desire_angle[NumOfHinge+1] = 0;//尾部偏航角度
+		
 		int HLvel = 0;
 		int HRvel = 0;
 		int TLvel = 0;
 		int TRvel = 0;
-
+		
 		switch (ch)
 		{//119w,115s,97a,100d
 		case 119:
-			HLvel = -100;
-			HRvel = -100;
-			TLvel = -100;
-			TRvel = -100;
+			HLvel = -20;
+			HRvel = -20;
+			TLvel = 0;
+			TRvel = 0;
 			break;
 		case 115:
-			HLvel = 100;
-			HRvel = 100;
-			TLvel = 100;
-			TRvel = 100;
+			HLvel = 0;
+			HRvel = 0;
+			TLvel = 20;
+			TRvel = 20;
 			break;
 		case 97:
-			HLvel = -100;
-			HRvel = -200;
-			TLvel = -100;
-			TRvel = -100;
+			HLvel = -10;
+			HRvel = -20;
+			TLvel = -10;
+			TRvel = -10;
 			break;
 		case 100:
-			HLvel = -200;
-			HRvel = -100;
-			TLvel = -100;
-			TRvel = -100;
+			HLvel = -20;
+			HRvel = -10;
+			TLvel = -10;
+			TRvel = -10;
 			break;
 		}
 			
@@ -534,12 +589,10 @@ void controller(int steps, int ch)
 	}
 	else
 	{
-		for(int i=0; i<NumOfHinge; i++)
+		for(int i=0; i<NumOfHinge+2; i++)
 		{
 			desire_angle[i] = 0;
 		}
-		desire_angle[NumOfHinge] = 0;
-		desire_angle[NumOfHinge+1] = 0;
 		for(int i=0; i<NumOfHeadWheels; i++)
 		{
 			dJointSetHingeParam(HeadWheelLeftJoint[i],dParamVel,0);
@@ -567,4 +620,3 @@ void controller(int steps, int ch)
 	dJointSetHingeParam(tailJoint,dParamFMax,maxtorque);
 
 }
-
