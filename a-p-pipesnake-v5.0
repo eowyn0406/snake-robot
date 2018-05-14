@@ -12,7 +12,7 @@
 #include <drawstuff/drawstuff.h>  //包含绘图函数的头文件
 #include <math.h>
 #include <conio.h>
-#include "vars1.h"
+#include "vars2.h"
 #ifdef _MSC_VER
 #pragma warning(disable:4244 4305)
 #endif      //禁止vc++警告
